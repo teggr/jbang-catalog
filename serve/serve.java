@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
         description = "serve a directory over http")
 class serve implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-p","--port"}, description = "Port for serving the files within the directory", defaultValue = "80")
+    @CommandLine.Option(names = {"-p","--port"}, description = "Port for serving the files within the directory. Defaults to 8282", defaultValue = "8282")
     private int port;
 
     @CommandLine.Option(names = {"-v","--verbose"}, description = "Turn on verbose logging", defaultValue = "false")

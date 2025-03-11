@@ -1,7 +1,7 @@
 {
   "catalogs": {},
   "aliases": {
-    "hello": {
+    "serve": {
       "script-ref": "serve/serve.java",
       "description": "Serve a directory over http"
     }
