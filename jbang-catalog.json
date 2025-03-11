@@ -1,0 +1,10 @@
+{
+  "catalogs": {},
+  "aliases": {
+    "hello": {
+      "script-ref": "serve/serve.java",
+      "description": "Serve a directory over http"
+    }
+  },
+  "templates": {}
+}
