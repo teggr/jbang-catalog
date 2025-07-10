@@ -13,8 +13,7 @@
   "templates": {
     "mcp-stdio": {
       "file-refs": {
-        "{basename}.java": "templates/mcpstdio.java.qute",
-        "{basename}-mcp.json": "templates/example-mcp.json.qute"
+        "{basename}.java": "templates/mcpstdio.java.qute"
       },
       "description": "A simple MCP server implementation supports the stdio protocol"
     }
