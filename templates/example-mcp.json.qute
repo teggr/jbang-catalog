@@ -1,0 +1,19 @@
+{
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "{baseName}-key",
+            "description": "{baseName} Key",
+            "password": true
+        }
+    ],
+    "servers": {
+        "underpants": {
+            "type": "stdio",
+            "command": "jbang",
+            "args": [
+                "installation-dir/{baseName}.java"
+            ]
+        }
+    }
+}

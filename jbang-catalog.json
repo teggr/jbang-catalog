@@ -6,5 +6,13 @@
       "description": "Serve a directory over http"
     }
   },
-  "templates": {}
+  "templates": {
+    "mcp-stdio": {
+      "file-refs": {
+        "{basename}.java": "templates/mcpstdio.java.qute",
+        "{basename}-mcp.json": "templates/example.mcp.json.qute"
+      },
+      "description": "A simple MCP server implementation supports the stdio protocol"
+    }
+  }
 }

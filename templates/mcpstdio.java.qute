@@ -1,0 +1,132 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//DEPS io.modelcontextprotocol.sdk:mcp:0.10.0
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.modelcontextprotocol.server.McpServer;
+import io.modelcontextprotocol.server.McpServerFeatures;
+import io.modelcontextprotocol.server.McpSyncServer;
+import io.modelcontextprotocol.server.transport.StdioServerTransportProvider;
+import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
+import io.modelcontextprotocol.spec.McpSchema.GetPromptResult;
+import io.modelcontextprotocol.spec.McpSchema.Prompt;
+import io.modelcontextprotocol.spec.McpSchema.PromptArgument;
+import io.modelcontextprotocol.spec.McpSchema.PromptMessage;
+import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
+import io.modelcontextprotocol.spec.McpSchema.Resource;
+import io.modelcontextprotocol.spec.McpSchema.ResourceContents;
+import io.modelcontextprotocol.spec.McpSchema.Role;
+import io.modelcontextprotocol.spec.McpSchema.ServerCapabilities;
+import io.modelcontextprotocol.spec.McpSchema.TextContent;
+import io.modelcontextprotocol.spec.McpSchema.TextResourceContents;
+import io.modelcontextprotocol.spec.McpSchema.Tool;
+
+/**
+ * https://code.visualstudio.com/docs/copilot/chat/mcp-servers
+ * https://code.visualstudio.com/mcp
+ */
+public class {baseName} {
+
+    private static final Logger log = LoggerFactory.getLogger({baseName}.class);
+
+    public static void main(String... args) {
+
+        log.info("starting my mcp {baseName} service");
+
+        StdioServerTransportProvider transportProvider
+            = new StdioServerTransportProvider(new ObjectMapper());
+
+        McpSyncServer syncServer = McpServer.sync(transportProvider)
+                .serverInfo("{baseName}-server", "1.0.0")
+                .capabilities(ServerCapabilities.builder()
+                        .resources(false, true) // support for resources
+                        .tools(true) // support for tools
+                        .prompts(true) // support for prompts
+                        // .logging()
+                        // .completions()
+                        .build())
+                .build();
+
+        // add tools
+        String schema = """
+                {
+                    "type" : "object",
+                    "id" : "urn:jsonschema:Operation",
+                    "properties" : {}
+                }
+                """;;
+
+        var syncToolSpecification = new McpServerFeatures.SyncToolSpecification(
+            new Tool("{baseName}", "tool description", schema),
+            (exchange,arguments)  -> {
+                log.info("{baseName} has been called");
+                // tool impl
+                return new CallToolResult("result", false);
+            });
+
+        syncServer.addTool(syncToolSpecification);
+
+        // add context resources
+
+        // Sync resource specification
+        var syncResourceSpecification = new McpServerFeatures.SyncResourceSpecification(
+            new Resource("uri", "name", "description", "mime-type", null),
+            (exchange, request) -> {
+                log.info("my {baseName} has been accessedd");
+                List<ResourceContents> contents = new ArrayList<>();
+                // Resource read implementation
+                return new ReadResourceResult(contents);
+            }
+        );
+
+        syncServer.addResource(syncResourceSpecification);
+
+        // add prompts
+
+        // Sync prompt specification
+        var syncPromptSpecification = new McpServerFeatures.SyncPromptSpecification(
+            new Prompt("greeting", "a prompt for sending greetings", List.of(
+                new PromptArgument("name", "name of the person to send greetings to", true)
+            )),
+            (exchange, request) -> {
+                log.info("my rpomt has been accessedd");
+                List<PromptMessage> messages = new ArrayList<>();
+                messages.add(new PromptMessage( 
+                    Role.USER, 
+                    new TextContent( "talk about flowers")
+                ));
+                // Prompt implementation
+                return new GetPromptResult("prompt for another greeting", messages);
+            }
+        );
+                
+        syncServer.addPrompt(syncPromptSpecification);
+
+        log.info("{baseName} service is setup");
+
+        // Add shutdown hook to close the server gracefully
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            syncServer.close();
+            log.info("{baseName} Server stopped.");
+        }));
+
+        log.info("{baseName} waiting for requests");
+
+        // Block main thread to keep the server running as a daemon
+        Object lock = new Object();
+        try {
+            synchronized (lock) {
+                lock.wait();
+            }
+        } catch (InterruptedException e) {
+            // Exit on interrupt
+        }
+    }
+
+}
