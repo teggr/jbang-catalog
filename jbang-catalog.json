@@ -1,6 +1,10 @@
 {
   "catalogs": {},
   "aliases": {
+    "init": {
+      "script-ref": "initializer/initializer.java",
+      "description": "Initialise a new Spring Boot project"
+    },
     "serve": {
       "script-ref": "serve/serve.java",
       "description": "Serve a directory over http"

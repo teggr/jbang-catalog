@@ -50,6 +50,7 @@ class initializer implements Callable<Integer> {
     @Override
     public Integer call() throws Exception { // your business logic goes here...
 
+        String os = System.getProperty("os.name").toLowerCase();
 
         ProjectType projectType = ProjectType.valueOf(type);
 
@@ -100,7 +101,10 @@ class initializer implements Callable<Integer> {
 
         try {
             // Build the spring init command
-            List<String> command = Arrays.asList(
+            List<String> command;
+                
+        if(os.contains("win")) {
+              command = Arrays.asList(
                     "cmd.exe", "/c", "spring", "init",
                     "--type=maven-project",
                     "--java=21",
@@ -112,7 +116,24 @@ class initializer implements Callable<Integer> {
                     "--dependencies=" + projectType.dependencies,
                     "--extract"
             );
-
+        } else if (os.contains("mac") || os.contains("nix") || os.contains("nux")) {
+                // macOS or Linux
+            command = Arrays.asList(
+                    "bash", "-c", "spring init " +
+                            "--type=maven-project " +
+                            "--java=21 " +
+                            "--group-id=" + group + " " +
+                            "--artifact-id=" + artifact + " " +
+                            "--description=\"" + description + "\" " +
+                            "--name=" + name + " " +
+                            "--package-name=" + packageName + " " +
+                            "--dependencies=" + projectType.dependencies + " " +
+                            "--extract"
+            );
+        } else {
+            throw new UnsupportedOperationException("Unsupported operating system: " + os);
+        }
+                
             // Set up and start the process
             ProcessBuilder processBuilder = new ProcessBuilder(command);
 
